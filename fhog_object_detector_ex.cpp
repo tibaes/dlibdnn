@@ -99,17 +99,20 @@ int main(int argc, char** argv)
         // in addition to resizing the images, these functions also make the
         // appropriate adjustments to the face boxes so that they still fall on
         // top of the faces after the images are resized.
-        upsample_image_dataset<pyramid_down<2> >(images_train, face_boxes_train);
-        upsample_image_dataset<pyramid_down<2> >(images_test,  face_boxes_test);
+        //#
+        //upsample_image_dataset<pyramid_down<2> >(images_train, face_boxes_train);
+        //upsample_image_dataset<pyramid_down<2> >(images_test,  face_boxes_test);
+        
         // Since human faces are generally left-right symmetric we can increase
         // our training dataset by adding mirrored versions of each image back
         // into images_train.  So this next step doubles the size of our
         // training dataset.  Again, this is obviously optional but is useful in
         // many object detection tasks.
-        add_image_left_right_flips(images_train, face_boxes_train);
+        //#
+        //add_image_left_right_flips(images_train, face_boxes_train);
+        
         cout << "num training images: " << images_train.size() << endl;
         cout << "num testing images:  " << images_test.size() << endl;
-
 
         // Finally we get to the training code.  dlib contains a number of
         // object detectors.  This typedef tells it that you want to use the one
@@ -121,25 +124,33 @@ int main(int argc, char** argv)
         // fashion.   
         typedef scan_fhog_pyramid<pyramid_down<6> > image_scanner_type; 
         image_scanner_type scanner;
-        // The sliding window detector will be 80 pixels wide and 80 pixels tall.
-        scanner.set_detection_window_size(80, 80); 
+
+        //# A regular knife has (700, 200) ~ (1200, 300)
+        // The sliding window detector will be 200 pixels wide and 50 pixels tall.
+        scanner.set_detection_window_size(200, 50);
         structural_object_detection_trainer<image_scanner_type> trainer(scanner);
+
         // Set this to the number of processing cores on your machine.
         trainer.set_num_threads(4);  
+        
         // The trainer is a kind of support vector machine and therefore has the usual SVM
         // C parameter.  In general, a bigger C encourages it to fit the training data
         // better but might lead to overfitting.  You must find the best C value
         // empirically by checking how well the trained detector works on a test set of
         // images you haven't trained on.  Don't just leave the value set at 1.  Try a few
         // different C values and see what works best for your data.
+        //# TODO: Test here, original is 1
         trainer.set_c(1);
+        
         // We can tell the trainer to print it's progress to the console if we want.  
         trainer.be_verbose();
+
         // The trainer will run until the "risk gap" is less than 0.01.  Smaller values
         // make the trainer solve the SVM optimization problem more accurately but will
         // take longer to train.  For most problems a value in the range of 0.1 to 0.01 is
         // plenty accurate.  Also, when in verbose mode the risk gap is printed on each
         // iteration so you can see how close it is to finishing the training.  
+        //# TODO: Test here, original is 0.01
         trainer.set_epsilon(0.01);
 
 
@@ -180,11 +191,11 @@ int main(int argc, char** argv)
 
         // Like everything in dlib, you can save your detector to disk using the
         // serialize() function.
-        serialize("face_detector.svm") << detector;
+        serialize("knife_detector.svm") << detector;
 
         // Then you can recall it using the deserialize() function.
         object_detector<image_scanner_type> detector2;
-        deserialize("face_detector.svm") >> detector2;
+        deserialize("knife_detector.svm") >> detector2;
 
 
 
