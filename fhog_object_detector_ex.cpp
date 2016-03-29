@@ -140,7 +140,7 @@ int main(int argc, char** argv)
         // images you haven't trained on.  Don't just leave the value set at 1.  Try a few
         // different C values and see what works best for your data.
         //# TODO: Test here, original is 1
-        trainer.set_c(5);
+        trainer.set_c(15);
         
         // We can tell the trainer to print it's progress to the console if we want.  
         trainer.be_verbose();
@@ -151,7 +151,7 @@ int main(int argc, char** argv)
         // plenty accurate.  Also, when in verbose mode the risk gap is printed on each
         // iteration so you can see how close it is to finishing the training.  
         //# TODO: Test here, original is 0.01
-        trainer.set_epsilon(0.01);
+        trainer.set_epsilon(0.005);
 
         //# TODO: Test here, original is 0.5
         trainer.set_match_eps(0.0001);
@@ -181,10 +181,14 @@ int main(int argc, char** argv)
         // window with such a visualization of our detector.  It should look somewhat like
         // a face.
         image_window hogwin(draw_fhog(detector), "Learned fHOG detector");
+        cin.get();
 
         // Now for the really fun part.  Let's display the testing images on the screen and
         // show the output of the face detector overlaid on each image.  You will see that
         // it finds all the faces without false alarming on any non-faces.
+
+        //# turned off testing window (a lot of images to see)
+        /*
         image_window win; 
         for (unsigned long i = 0; i < images_test.size(); ++i)
         {
@@ -196,6 +200,7 @@ int main(int argc, char** argv)
             cout << "Hit enter to process the next image..." << endl;
             cin.get();
         }
+        */
 
 
         // Now let's talk about some optional features of this training tool as well as some
