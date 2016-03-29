@@ -5,7 +5,7 @@
     for things like faces, pedestrians, and any other semi-rigid object.  In
     particular, we go though the steps to train the kind of sliding window
     object detector first published by Dalal and Triggs in 2005 in the paper
-    Histograms of Oriented Gradients for Human Detection.  
+    Histograms of Oriented Gradients for Human Detection.
 
     Note that this program executes fastest when compiled with at least SSE2
     instructions enabled.  So if you are using a PC with an Intel or AMD chip
@@ -19,7 +19,7 @@
     Studio, or the Intel compiler.  If you are using another compiler then you
     need to consult your compiler's manual to determine how to enable these
     instructions.  Note that AVX is the fastest but requires a CPU from at least
-    2011.  SSE4 is the next fastest and is supported by most current machines.  
+    2011.  SSE4 is the next fastest and is supported by most current machines.
 
 */
 
@@ -39,7 +39,7 @@ using namespace dlib;
 // ----------------------------------------------------------------------------------------
 
 int main(int argc, char** argv)
-{  
+{
 
     try
     {
@@ -60,16 +60,16 @@ int main(int argc, char** argv)
         const std::string faces_directory = argv[1];
         // The faces directory contains a training dataset and a separate
         // testing dataset.  The training data consists of 4 images, each
-        // annotated with rectangles that bound each human face.  The idea is 
+        // annotated with rectangles that bound each human face.  The idea is
         // to use this training data to learn to identify human faces in new
-        // images.  
-        // 
+        // images.
+        //
         // Once you have trained an object detector it is always important to
         // test it on data it wasn't trained on.  Therefore, we will also load
         // a separate testing set of 5 images.  Once we have a face detector
         // created from the training data we will see how well it works by
-        // running it on the testing images. 
-        // 
+        // running it on the testing images.
+        //
         // So here we create the variables that will hold our dataset.
         // images_train will hold the 4 training images and face_boxes_train
         // holds the locations of the faces in the training images.  So for
@@ -102,7 +102,7 @@ int main(int argc, char** argv)
         //#
         //upsample_image_dataset<pyramid_down<2> >(images_train, face_boxes_train);
         //upsample_image_dataset<pyramid_down<2> >(images_test,  face_boxes_test);
-        
+
         // Since human faces are generally left-right symmetric we can increase
         // our training dataset by adding mirrored versions of each image back
         // into images_train.  So this next step doubles the size of our
@@ -110,7 +110,7 @@ int main(int argc, char** argv)
         // many object detection tasks.
         //#
         //add_image_left_right_flips(images_train, face_boxes_train);
-        
+
         cout << "num training images: " << images_train.size() << endl;
         cout << "num testing images:  " << images_test.size() << endl;
 
@@ -121,8 +121,8 @@ int main(int argc, char** argv)
         // it to use an image pyramid that downsamples the image at a ratio of
         // 5/6.  Recall that HOG detectors work by creating an image pyramid and
         // then running the detector over each pyramid level in a sliding window
-        // fashion.   
-        typedef scan_fhog_pyramid<pyramid_down<6> > image_scanner_type; 
+        // fashion.
+        typedef scan_fhog_pyramid<pyramid_down<6> > image_scanner_type;
         image_scanner_type scanner;
 
         //# A regular knife has (700, 200) ~ (1200, 300)
@@ -131,8 +131,8 @@ int main(int argc, char** argv)
         structural_object_detection_trainer<image_scanner_type> trainer(scanner);
 
         // Set this to the number of processing cores on your machine.
-        trainer.set_num_threads(4);  
-        
+        trainer.set_num_threads(4);
+
         // The trainer is a kind of support vector machine and therefore has the usual SVM
         // C parameter.  In general, a bigger C encourages it to fit the training data
         // better but might lead to overfitting.  You must find the best C value
@@ -140,21 +140,24 @@ int main(int argc, char** argv)
         // images you haven't trained on.  Don't just leave the value set at 1.  Try a few
         // different C values and see what works best for your data.
         //# TODO: Test here, original is 1
-        trainer.set_c(15);
-        
-        // We can tell the trainer to print it's progress to the console if we want.  
+        trainer.set_c(10);
+
+        // We can tell the trainer to print it's progress to the console if we want.
         trainer.be_verbose();
 
         // The trainer will run until the "risk gap" is less than 0.01.  Smaller values
         // make the trainer solve the SVM optimization problem more accurately but will
         // take longer to train.  For most problems a value in the range of 0.1 to 0.01 is
         // plenty accurate.  Also, when in verbose mode the risk gap is printed on each
-        // iteration so you can see how close it is to finishing the training.  
+        // iteration so you can see how close it is to finishing the training.
         //# TODO: Test here, original is 0.01
-        trainer.set_epsilon(0.005);
+        trainer.set_epsilon(0.001);
 
         //# TODO: Test here, original is 0.5
-        trainer.set_match_eps(0.0001);
+        trainer.set_match_eps(0.01);
+
+        //# TODO: Test here, removing boxes that does not fit match_eps
+        remove_unobtainable_rectangles(trainer, images_train, face_boxes_train);
 
         // Now we run the trainer.  For this example, it should take on the order of 10
         // seconds to train.
@@ -189,7 +192,7 @@ int main(int argc, char** argv)
 
         //# turned off testing window (a lot of images to see)
         /*
-        image_window win; 
+        image_window win;
         for (unsigned long i = 0; i < images_test.size(); ++i)
         {
             // Run the detector and get the face detections.
@@ -215,7 +218,7 @@ int main(int argc, char** argv)
         // for example, you had a box in your training data that was 200 pixels by 10
         // pixels then it would simply be impossible for the detector to learn to detect
         // it.  Similarly, if you had a really small box it would be unable to learn to
-        // detect it.  
+        // detect it.
         //
         // So the training code performs an input validation check on the training data and
         // will throw an exception if it detects any boxes that are impossible to detect
@@ -227,8 +230,8 @@ int main(int argc, char** argv)
         // exception.  However, I would recommend you be careful that you are not throwing
         // away truth boxes you really care about.  The remove_unobtainable_rectangles()
         // will return the set of removed rectangles so you can visually inspect them and
-        // make sure you are OK that they are being removed. 
-        // 
+        // make sure you are OK that they are being removed.
+        //
         // Next, note that any location in the images not marked with a truth box is
         // implicitly treated as a negative example.  This means that when creating
         // training data it is critical that you label all the objects you want to detect.
@@ -237,15 +240,17 @@ int main(int argc, char** argv)
         // unsure about or simply don't care if the detector identifies or not.  For these
         // objects you can pass in a set of "ignore boxes" as a third argument to the
         // trainer.train() function.  The trainer will simply disregard any detections that
-        // happen to hit these boxes.  
+        // happen to hit these boxes.
         //
         // Another useful thing you can do is evaluate multiple HOG detectors together. The
         // benefit of this is increased testing speed since it avoids recomputing the HOG
         // features for each run of the detector.  You do this by storing your detectors
         // into a std::vector and then invoking evaluate_detectors() like so:
+        /*
         std::vector<object_detector<image_scanner_type> > my_detectors;
         my_detectors.push_back(detector);
-        std::vector<rectangle> dets = evaluate_detectors(my_detectors, images_train[0]); 
+        std::vector<rectangle> dets = evaluate_detectors(my_detectors, images_train[0]);
+        */
         //
         //
         // Finally, you can add a nuclear norm regularizer to the SVM trainer.  Doing has
@@ -262,14 +267,16 @@ int main(int argc, char** argv)
         // well.  This is analogous to giving a C value that is too small.
         //
         // You can see how many separable filters are inside your detector like so:
-        cout << "num filters: "<< num_separable_filters(detector) << endl;
+        //cout << "num filters: "<< num_separable_filters(detector) << endl;
+        
         // You can also control how many filters there are by explicitly thresholding the
         // singular values of the filters like this:
-        detector = threshold_filter_singular_values(detector,0.1);
+        //detector = threshold_filter_singular_values(detector,0.1);
+        
         // That removes filter components with singular values less than 0.1.  The bigger
         // this number the fewer separable filters you will have and the faster the
         // detector will run.  However, a large enough threshold will hurt detection
-        // accuracy.  
+        // accuracy.
 
     }
     catch (exception& e)
@@ -279,5 +286,4 @@ int main(int argc, char** argv)
     }
 }
 
-// ----------------------------------------------------------------------------------------
-
+// ---------------------------------------------------------------------------------------
