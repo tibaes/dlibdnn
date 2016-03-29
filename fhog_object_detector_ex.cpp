@@ -140,7 +140,7 @@ int main(int argc, char** argv)
         // images you haven't trained on.  Don't just leave the value set at 1.  Try a few
         // different C values and see what works best for your data.
         //# TODO: Test here, original is 1
-        trainer.set_c(1);
+        trainer.set_c(5);
         
         // We can tell the trainer to print it's progress to the console if we want.  
         trainer.be_verbose();
@@ -153,6 +153,8 @@ int main(int argc, char** argv)
         //# TODO: Test here, original is 0.01
         trainer.set_epsilon(0.01);
 
+        //# TODO: Test here, original is 0.5
+        trainer.set_match_eps(0.0001);
 
         // Now we run the trainer.  For this example, it should take on the order of 10
         // seconds to train.
@@ -166,6 +168,13 @@ int main(int argc, char** argv)
         // that the object detector works perfectly on the testing images.
         cout << "testing results:  " << test_object_detection_function(detector, images_test, face_boxes_test) << endl;
 
+        // Like everything in dlib, you can save your detector to disk using the
+        // serialize() function.
+        serialize("knife_detector.svm") << detector;
+
+        // Then you can recall it using the deserialize() function.
+        object_detector<image_scanner_type> detector2;
+        deserialize("knife_detector.svm") >> detector2;
 
         // If you have read any papers that use HOG you have probably seen the nice looking
         // "sticks" visualization of a learned HOG detector.  This next line creates a
@@ -187,17 +196,6 @@ int main(int argc, char** argv)
             cout << "Hit enter to process the next image..." << endl;
             cin.get();
         }
-
-
-        // Like everything in dlib, you can save your detector to disk using the
-        // serialize() function.
-        serialize("knife_detector.svm") << detector;
-
-        // Then you can recall it using the deserialize() function.
-        object_detector<image_scanner_type> detector2;
-        deserialize("knife_detector.svm") >> detector2;
-
-
 
 
         // Now let's talk about some optional features of this training tool as well as some
