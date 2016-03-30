@@ -140,7 +140,7 @@ int main(int argc, char** argv)
         // images you haven't trained on.  Don't just leave the value set at 1.  Try a few
         // different C values and see what works best for your data.
         //# TODO: Test here, original is 1
-        trainer.set_c(10);
+        trainer.set_c(1);
 
         // We can tell the trainer to print it's progress to the console if we want.
         trainer.be_verbose();
