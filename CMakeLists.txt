@@ -13,7 +13,7 @@ include(../dlib/cmake)
 # CMakeLists.txt file.  However, usually you will create only one executable in
 # your cmake projects and use the syntax shown above.
 MACRO(add_example name)
-   ADD_EXECUTABLE(${name} ${name}.cpp)
+   ADD_EXECUTABLE(${name} src/${name}.cpp)
    TARGET_LINK_LIBRARIES(${name} dlib )
 ENDMACRO()
 
