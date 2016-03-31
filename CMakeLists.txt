@@ -3,7 +3,6 @@
 # information about it at http://www.cmake.org
 #
 
-
 cmake_minimum_required(VERSION 2.8.4)
 
 PROJECT(weapon)
@@ -19,7 +18,7 @@ MACRO(add_example name)
 ENDMACRO()
 
 
-#here we apply our macros 
+#here we apply our macros
 add_example(fhog_ex)
 add_example(fhog_object_detector_ex)
-
+add_example(video_tracking_ex)
