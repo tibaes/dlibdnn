@@ -56,20 +56,31 @@ int main(int argc, char** argv) {
 
     detected = !(dets.empty() && detshm.empty() && detsvm.empty()
                && detsvhm.empty());
-    if (!dets.empty())
+    if (!dets.empty()) {
       object_roi = drectangle(dets.front());
+    }
     else if (!detsvm.empty()) {
-      /*
-      rectangle rec = detsvm.front();
-      dpoint p1 = revvm(dpoint(rec.tl_corner()));
-      dpoint p2 = revvm(dpoint(rec.br_corner()));
-      object_roi = drectangle(p1, p2);
-      // falta soh os flip!
-      */
+      rectangle r = detsvm.front();
+      object_roi = drectangle(rectangle(r.right(), r.top(),
+                                        r.left(), r.bottom()));
+    } else if (!detshm.empty()) {
+      rectangle r = detshm.front();
+      object_roi = drectangle(rectangle(r.left(), r.bottom(),
+                                        r.right(), r.top()));
+    } else if (!detsvhm.empty()) {
+      rectangle r = detsvhm.front();
+      object_roi = drectangle(rectangle(r.right(), r.bottom(),
+                                        r.left(), r.top()));
     }
   }
 
-  if (!detected) {
+  if (detected) {
+    cout << "Object found at (" << object_roi << ")" << endl;
+    cout << " Press any key to start the tracker." << endl;
+    win.clear_overlay();
+    win.add_overlay(object_roi);
+    cin.get();
+  } else {
     throw runtime_error("Object not found, shutting down.");
   }
 

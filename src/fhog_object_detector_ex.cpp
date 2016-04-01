@@ -127,7 +127,7 @@ int main(int argc, char** argv)
 
         //# A regular knife has (700, 200) ~ (1200, 300)
         // The sliding window detector will be 200 pixels wide and 50 pixels tall.
-        scanner.set_detection_window_size(200, 50);
+        scanner.set_detection_window_size(60, 10);
         structural_object_detection_trainer<image_scanner_type> trainer(scanner);
 
         // Set this to the number of processing cores on your machine.
@@ -268,11 +268,11 @@ int main(int argc, char** argv)
         //
         // You can see how many separable filters are inside your detector like so:
         //cout << "num filters: "<< num_separable_filters(detector) << endl;
-        
+
         // You can also control how many filters there are by explicitly thresholding the
         // singular values of the filters like this:
         //detector = threshold_filter_singular_values(detector,0.1);
-        
+
         // That removes filter components with singular values less than 0.1.  The bigger
         // this number the fewer separable filters you will have and the faster the
         // detector will run.  However, a large enough threshold will hurt detection
