@@ -45,9 +45,9 @@ int main(int argc, char** argv) {
     win.set_image(img);
 
     array2d<unsigned char> imgvm, imghm, imgvhm;
-    point_transform_affine revhm = flip_image_up_down(img, imghm);
-    point_transform_affine revvm = flip_image_left_right(img, imgvm);
-    point_transform_affine revvhm = flip_image_left_right(imghm, imgvhm);
+    flip_image_up_down(img, imghm);
+    flip_image_left_right(img, imgvm);
+    flip_image_left_right(imghm, imgvhm);
 
     std::vector<rectangle> dets = detector(img);
     std::vector<rectangle> detshm = detector(imghm);
@@ -59,11 +59,13 @@ int main(int argc, char** argv) {
     if (!dets.empty())
       object_roi = drectangle(dets.front());
     else if (!detsvm.empty()) {
+      /*
       rectangle rec = detsvm.front();
       dpoint p1 = revvm(dpoint(rec.tl_corner()));
       dpoint p2 = revvm(dpoint(rec.br_corner()));
       object_roi = drectangle(p1, p2);
       // falta soh os flip!
+      */
     }
   }
 
