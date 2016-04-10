@@ -2,6 +2,7 @@
 #include <opencv2/core.hpp>
 #include <opencv2/features2d.hpp>
 #include <opencv2/highgui.hpp>
+#include <opencv2/imgproc.hpp>
 #include <opencv2/xfeatures2d.hpp>
 #include <stdexcept>
 #include <vector>
@@ -15,8 +16,12 @@ int main(const int argc, const char **argv) {
     throw std::invalid_argument("Wrong usage.");
   }
 
-  cv::Mat img_model = cv::imread(argv[1]);
-  cv::Mat img_target = cv::imread(argv[2]);
+  cv::Mat img_model, raw_img_model = cv::imread(argv[1]);
+  cv::Mat img_target, raw_img_target = cv::imread(argv[2]);
+
+  const double sg_color = 100.0, sg_space = 20.0;
+  cv::bilateralFilter(raw_img_model, img_model, -1, sg_color, sg_space);
+  cv::bilateralFilter(raw_img_target, img_target, -1, sg_color, sg_space);
 
   cv::Ptr<cv::Feature2D> algorithm = cv::xfeatures2d::SIFT::create();
   std::vector<cv::KeyPoint> keypoits_model, keypoits_target;
@@ -30,14 +35,11 @@ int main(const int argc, const char **argv) {
   std::vector<std::vector<cv::DMatch>> matches;
   matcher.knnMatch(descriptors_model, descriptors_target, matches, 2);
 
-  /*
   cv::Mat r0, r1;
   cv::drawKeypoints(img_model, keypoits_model, r0);
   cv::drawKeypoints(img_target, keypoits_target, r1);
-  cv::imshow("keys0", r0);
-  cv::imshow("keys1", r1);
-  cv::waitKey(10);
-   */
+  cv::imwrite("keys0.png", r0);
+  cv::imwrite("keys1.png", r1);
 
   std::vector<cv::DMatch> good_matches;
   for (size_t i = 0; i < matches.size(); i++) {
