@@ -1,6 +1,7 @@
 // Rafael H. Tibaes !2016
 // r@fael.nl http://fael.nl
 
+#include <chrono>
 #include <dlib/data_io.h>
 #include <dlib/dir_nav.h>
 #include <dlib/gui_widgets.h>
@@ -11,6 +12,7 @@
 #include <fstream>
 #include <iostream>
 #include <stdexcept>
+#include <thread>
 
 using namespace dlib;
 using namespace std;
@@ -19,7 +21,7 @@ int main(int argc, char **argv) {
   const string detectorFilename = "../share/fakegun.svm";
   object_detector<scan_fhog_pyramid<pyramid_down<6>>> detector;
   deserialize(detectorFilename) >> detector;
-  image_window hogwin(draw_fhog(detector), "Learned fHOG detector");
+  // image_window hogwin(draw_fhog(detector), "Learned fHOG detector");
 
   if (argc != 2) {
     cout << "Call this program like this: " << endl;
@@ -43,23 +45,27 @@ int main(int argc, char **argv) {
   for (fid = 0; fid < files.size() && !detected; ++fid) {
     std::cout << "Processing object detection at: " << files[fid] << std::endl;
     load_image(img, files[fid]);
+    win.set_image(img);
 
     for (auto offset_angle = 0.0; offset_angle < M_PI_2 && !detected;
          offset_angle += M_PI / 16.0) {
       auto affine = rotate_image(img, rotated, offset_angle);
+      auto reverse = inv(affine);
       std::vector<rectangle> dets = detector(rotated);
       detected = !dets.empty();
       if (!dets.empty()) {
-        auto p0 = affine(dets.front().tl_corner());
-        auto p1 = affine(dets.front().br_corner());
+        auto p0 = reverse(dets.front().tl_corner());
+        auto p1 = reverse(dets.front().br_corner());
         object_roi = drectangle(p0, p1);
       }
-      win.set_image(rotated);
+      // win.set_image(rotated);
+      /*
       cout << "> Applying affine transformation: "
            << (offset_angle / M_PI) * 180.0
            << " degrees. Detected: " << detected << endl
            << "hit enter to process next frame" << endl;
       cin.get();
+       */
     }
   }
 
@@ -84,8 +90,9 @@ int main(int argc, char **argv) {
     win.clear_overlay();
     win.add_overlay(tracker.get_position());
 
-    cout << "hit enter to process next frame" << endl;
-    cin.get();
+    // cout << "hit enter to process next frame" << endl;
+    // cin.get();
+    this_thread::sleep_for(chrono::duration<double, std::milli>(500));
   }
 
   return 0;
