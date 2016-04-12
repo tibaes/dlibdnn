@@ -19,7 +19,7 @@ int main(int argc, char **argv) {
   const string detectorFilename = "../share/fakegun.svm";
   object_detector<scan_fhog_pyramid<pyramid_down<6>>> detector;
   deserialize(detectorFilename) >> detector;
-  // image_window hogwin(draw_fhog(detector), "Learned fHOG detector");
+  image_window hogwin(draw_fhog(detector), "Learned fHOG detector");
 
   if (argc != 2) {
     cout << "Call this program like this: " << endl;
@@ -34,21 +34,32 @@ int main(int argc, char **argv) {
     throw runtime_error("No images found.");
   }
 
-  array2d<unsigned char> img;
+  array2d<unsigned char> img, rotated;
   image_window win;
   bool detected = false;
   drectangle object_roi;
 
   unsigned long fid;
   for (fid = 0; fid < files.size() && !detected; ++fid) {
-    std::cout << "Processing file: " << files[fid] << std::endl;
+    std::cout << "Processing object detection at: " << files[fid] << std::endl;
     load_image(img, files[fid]);
-    win.set_image(img);
 
-    std::vector<rectangle> dets = detector(img);
-    detected = !dets.empty();
-    if (!dets.empty()) {
-      object_roi = drectangle(dets.front());
+    for (auto offset_angle = 0.0; offset_angle < M_PI_2 && !detected;
+         offset_angle += M_PI / 16.0) {
+      auto affine = rotate_image(img, rotated, offset_angle);
+      std::vector<rectangle> dets = detector(rotated);
+      detected = !dets.empty();
+      if (!dets.empty()) {
+        auto p0 = affine(dets.front().tl_corner());
+        auto p1 = affine(dets.front().br_corner());
+        object_roi = drectangle(p0, p1);
+      }
+      win.set_image(rotated);
+      cout << "> Applying affine transformation: "
+           << (offset_angle / M_PI) * 180.0
+           << " degrees. Detected: " << detected << endl
+           << "hit enter to process next frame" << endl;
+      cin.get();
     }
   }
 
