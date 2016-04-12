@@ -71,10 +71,10 @@ int main(int argc, char **argv) {
 
   if (detected) {
     cout << "Object found at (" << object_roi << ")" << endl;
-    cout << " Press any key to start the tracker." << endl;
+    // cout << " Press any key to start the tracker." << endl;
     win.clear_overlay();
     win.add_overlay(object_roi);
-    cin.get();
+    // cin.get();
   } else {
     throw runtime_error("Object not found, shutting down.");
   }
@@ -92,7 +92,7 @@ int main(int argc, char **argv) {
 
     // cout << "hit enter to process next frame" << endl;
     // cin.get();
-    this_thread::sleep_for(chrono::duration<double, std::milli>(500));
+    this_thread::sleep_for(chrono::duration<double, std::milli>(100));
   }
 
   return 0;

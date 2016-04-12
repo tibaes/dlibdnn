@@ -29,3 +29,5 @@ add_example(fhog_object_detector_ex)
 add_example(video_tracking_ex)
 add_example(demo_fhog_track)
 add_example(demo_sift_track)
+add_example(capture)
+
