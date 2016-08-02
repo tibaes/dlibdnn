@@ -7,11 +7,11 @@ cmake_minimum_required(VERSION 3.4)
 
 PROJECT(weapon)
 
-set(OpenCV_DIR "/usr/local/Cellar/opencv3/3.0.0/share/OpenCV/")
+set(OpenCV_DIR "/usr/local/opt/opencv3/share/OpenCV/")
 find_package(OpenCV REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
 
-include(../dlib-18.18/dlib/cmake)
+include(../../dlib-19.0/dlib/cmake)
 
 # Since there are a lot of examples I'm going to use a macro to simply this
 # CMakeLists.txt file.  However, usually you will create only one executable in
@@ -28,6 +28,5 @@ add_example(fhog_ex)
 add_example(fhog_object_detector_ex)
 add_example(video_tracking_ex)
 add_example(demo_fhog_track)
-add_example(demo_sift_track)
+# add_example(demo_sift_track)
 add_example(capture)
-
